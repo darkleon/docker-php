@@ -58,8 +58,6 @@ RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz &&\
 RUN pecl install amqp-1.6.0beta3.tgz 
 RUN pecl install oauth
 
-ADD /php5 /etc/php5
-
 WORKDIR /var/www
 
 EXPOSE 9000
