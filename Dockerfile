@@ -4,12 +4,18 @@ MAINTAINER Anton Belov anton4@bk.ru
 # Let the conatiner know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
 # Use source.list with all repositories and Yandex mirrors.
-RUN add-apt-repository ppa:ondrej/php
+
+
 RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y && apt-get clean && \
 	apt-get -y install \
-	php5-fpm php5-mysql php-apc pwgen python-setuptools \
-	ssmtp ca-certificates curl php7.0 php7.0-curl php7.0-gd php7.0-intl php-pear php7.0-imagick \
-	php7.0-imap php7.0-mcrypt php7.0-memcache php7.0-ming php7.0-ps php7.0-pspell php7.0-cli php7.0-dev \ 
+	pwgen python-setuptools software-properties-common && \
+	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C && \
+	LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && \
+	apt-get update -y && \
+	apt-get -y install  \
+	ssmtp ca-certificates curl php7.0 php7.0-fpm  php7.0-mysql php7.0-curl php7.0-gd php7.0-intl php-pear php7.0-imagick \
+	php7.0-imap php7.0-mbstring php7.0-mcrypt php7.0-memcache \
+ 	php7.0-ps php7.0-pspell php7.0-cli php7.0-dev \ 
 	php7.0-recode php7.0-sqlite php7.0-tidy php7.0-xmlrpc php7.0-xsl php7.0-xdebug wget pkg-config &&\
         apt-get clean && \
         rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* /download/directory
@@ -21,15 +27,7 @@ RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y 
 	apt-get clean && \
 	rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* /download/directory
 
-#ioncube
 WORKDIR /tmp
-RUN	wget http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz && \
-	tar xvfz ioncube_loaders_lin_x86-64.tar.gz &&\
-	rm ioncube_loaders_lin_x86-64.tar.gz &&\
-	echo ioncube/ioncube_loader_lin_${PHP_VERSION}.so `php-config --extension-dir` &&\
-	PHP_VERSION=$(php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;") && \
-	cp ioncube/ioncube_loader_lin_${PHP_VERSION}.so `php-config --extension-dir` && rm -rf ioncube && \
-	echo zend_extension=`php-config --extension-dir`/ioncube_loader_lin_${PHP_VERSION}.so >> /etc/php5/fpm/php.ini 	
 
 #install newrelic
 RUN apt-key adv --fetch-keys http://download.newrelic.com/548C16BF.gpg && \
@@ -39,12 +37,6 @@ RUN apt-key adv --fetch-keys http://download.newrelic.com/548C16BF.gpg && \
     rm -rf /var/lib/apt/lists/*
 
 
-# mcrypt enable Enabling session files
-RUN ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/fpm/conf.d/20-mcrypt.ini &&\
-    ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/cli/conf.d/20-mcrypt.ini &&\
-    mkdir -p /tmp/sessions/ &&\
-    chown www-data.www-data /tmp/sessions -Rf &&\
-    sed -i -e "s:;\s*session.save_path\s*=\s*\"N;/path\":session.save_path = /tmp/sessions:g" /etc/php5/fpm/php.ini
 
 RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz &&\
 	 tar -xzvf v0.7.0.tar.gz &&\
@@ -55,6 +47,35 @@ RUN pecl install oauth
 
 WORKDIR /var/www
 
+
+RUN sed -i '/daemonize /c \
+daemonize = no' /etc/php/7.0/fpm/php-fpm.conf
+
+# tweak php-fpm config
+RUN sed -i -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g" /etc/php/7.0/fpm/php.ini && \
+sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /etc/php/7.0/fpm/php.ini && \
+sed -i -e "s/post_max_size\s*=\s*8M/post_max_size = 100M/g" /etc/php/7.0/fpm/php.ini && \
+sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.0/fpm/php-fpm.conf && \
+sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+sed -i -e "s/pm.max_children = 5/pm.max_children = 9/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+sed -i -e "s/pm.start_servers = 2/pm.start_servers = 3/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+sed -i -e "s/pm.min_spare_servers = 1/pm.min_spare_servers = 2/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+sed -i -e "s/pm.max_spare_servers = 3/pm.max_spare_servers = 4/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+sed -i -e "s/pm.max_requests = 500/pm.max_requests = 200/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+echo "date.timezone = \"Europe/London\"" >> /etc/php/7.0/fpm/php.ini
+
+# fix ownership of sock file for php-fpm
+RUN sed -i -e "s/;listen.mode = 0660/listen.mode = 0750/g" /etc/php/7.0/fpm/pool.d/www.conf && \
+find /etc/php/7.0/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
+
+
+RUN sed -i '/^listen /c \
+listen = 9000' /etc/php/7.0/fpm/pool.d/www.conf
+
+RUN sed -i 's/^listen.allowed_clients/;listen.allowed_clients/' /etc/php/7.0/fpm/pool.d/www.conf
+RUN mkdir /run/php/ && chmod 777 /run/php/
 EXPOSE 9000
 
-CMD ["php7-fpm", "-F", "-O"]
+VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/srv/http"]
+
+ENTRYPOINT ["php-fpm7.0"]
