@@ -3,16 +3,16 @@ MAINTAINER Anton Belov anton4@bk.ru
 
 # Let the conatiner know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
-# Use source.list with all repositories and Yandex mirrors.
-ADD sources.list /etc/apt/sources.list
-RUN sed -i 's|://.*\..*\.com|://ru.archive.ubuntu.com|' /etc/apt/sources.list &&\
-    echo 'force-unsafe-io' | tee /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
-    echo 'DPkg::Post-Invoke {"/bin/rm -f /var/cache/apt/archives/*.deb || true";};' | tee /etc/apt/apt.conf.d/no-cache &&\
-    echo 'Acquire::http {No-Cache=True;};' | tee /etc/apt/apt.conf.d/no-http-cache
+
 
 RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y && apt-get clean && \
 	apt-get -y install \
-	php5-fpm php5-mysql php-apc pwgen python-setuptools \
+	pwgen python-setuptools \
+	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C && \
+	LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php5-5.6 && \
+	apt-get update -y && \
+	apt-get -y install  \
+	php5-fpm php5-mysql php-apc \
 	ssmtp ca-certificates curl php5-curl php5-gd php5-intl php-pear php5-imagick \
 	php5-imap php5-mcrypt php5-memcache php5-ming php5-ps php5-pspell php5-cli php5-dev \ 
 	php5-recode php5-sqlite php5-tidy php5-xmlrpc php5-xsl php5-xdebug wget pkg-config &&\
