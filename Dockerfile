@@ -45,9 +45,8 @@ RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz &&\
 RUN pecl install amqp-1.6.0beta3.tgz 
 RUN pecl install oauth
 RUN mkdir /run/php/ && chmod 777 /run/php/
-
+chown -R www-data /etc/php
 USER www-data
-WORKDIR /var/www
 
 
 RUN sed -i '/daemonize /c \
@@ -80,4 +79,4 @@ EXPOSE 9000
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
-ENTRYPOINT ["chown -R www-data:www-data /var/www && php-fpm7.0"]
+ENTRYPOINT ["chown -R www-data /var/www && php-fpm7.0"]
