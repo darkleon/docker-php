@@ -79,4 +79,4 @@ EXPOSE 9000
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
-ENTRYPOINT ["chown -R www-data /var/www && php-fpm7.0"]
+ENTRYPOINT ["php-fpm7.0"]
