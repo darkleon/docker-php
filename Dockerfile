@@ -44,7 +44,9 @@ RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz &&\
 	 autoreconf -i && ./configure && make && make install                 
 RUN pecl install amqp-1.6.0beta3.tgz 
 RUN pecl install oauth
+RUN mkdir /run/php/ && chmod 777 /run/php/
 
+USER www-data
 WORKDIR /var/www
 
 
@@ -73,9 +75,9 @@ RUN sed -i '/^listen /c \
 listen = 9000' /etc/php/7.0/fpm/pool.d/www.conf
 
 RUN sed -i 's/^listen.allowed_clients/;listen.allowed_clients/' /etc/php/7.0/fpm/pool.d/www.conf
-RUN mkdir /run/php/ && chmod 777 /run/php/
+
 EXPOSE 9000
 
-VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/srv/http"]
+VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
-ENTRYPOINT ["php-fpm7.0"]
+ENTRYPOINT ["chown -R www-data:www-data /var/www && php-fpm7.0"]
