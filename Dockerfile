@@ -46,8 +46,6 @@ RUN pecl install amqp-1.6.0beta3.tgz
 RUN pecl install oauth
 RUN mkdir /run/php/ && chmod 777 /run/php/
 RUN chown -R www-data /etc/php
-USER www-data
-
 
 RUN sed -i '/daemonize /c \
 daemonize = no' /etc/php/7.0/fpm/php-fpm.conf
