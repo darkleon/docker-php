@@ -45,7 +45,6 @@ RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz &&\
 RUN pecl install amqp-1.6.0beta3.tgz 
 RUN pecl install oauth
 RUN mkdir /run/php/ && chmod 777 /run/php/
-RUN chown -R www-data /etc/php
 
 RUN sed -i '/daemonize /c \
 daemonize = no' /etc/php/7.0/fpm/php-fpm.conf
