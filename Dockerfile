@@ -84,4 +84,4 @@ EXPOSE 9000
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
-ENTRYPOINT ["php-fpm7.0"]
+ENTRYPOINT ["/entrypoint.sh"]
