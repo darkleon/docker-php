@@ -61,8 +61,7 @@ sed -i -e "s/pm.min_spare_servers = 1/pm.min_spare_servers = 2/g" /etc/php/7.0/f
 sed -i -e "s/pm.max_spare_servers = 3/pm.max_spare_servers = 4/g" /etc/php/7.0/fpm/pool.d/www.conf && \
 sed -i -e "s/pm.max_requests = 500/pm.max_requests = 200/g" /etc/php/7.0/fpm/pool.d/www.conf && \
 echo "date.timezone = \"Europe/London\"" >> /etc/php/7.0/fpm/php.ini
-ADD ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+
 # fix ownership of sock file for php-fpm
 RUN sed -i -e "s/;listen.mode = 0660/listen.mode = 0750/g" /etc/php/7.0/fpm/pool.d/www.conf && \
 find /etc/php/7.0/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
@@ -82,6 +81,9 @@ RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive \
         rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* /download/directory
         
 EXPOSE 9000
+
+ADD ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
