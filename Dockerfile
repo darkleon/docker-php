@@ -87,4 +87,4 @@ RUN chmod +x /entrypoint.sh
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
-CMD ["php7-fpm"]
+CMD ["php-fpm7.0"]
