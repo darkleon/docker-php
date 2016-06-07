@@ -72,6 +72,14 @@ listen = 9000' /etc/php/7.0/fpm/pool.d/www.conf
 
 RUN sed -i 's/^listen.allowed_clients/;listen.allowed_clients/' /etc/php/7.0/fpm/pool.d/www.conf
 
+#installing cron
+RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive \
+	apt-get -y install  \
+	rsyslog &&\
+	touch /etc/crontab &&\
+        apt-get clean && \
+        rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* /download/directory
+        
 EXPOSE 9000
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
