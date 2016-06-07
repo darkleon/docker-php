@@ -82,8 +82,6 @@ RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive \
         
 EXPOSE 9000
 
-ADD ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 VOLUME ["/etc/php-fpm.d", "/var/log/php-fpm", "/var/www"]
 
