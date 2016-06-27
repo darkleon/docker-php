@@ -32,7 +32,7 @@ RUN yum -y install freetds && \
 	php-pecl-zip \
 	php-process \
 	php-pecl-xdebug && \
-	yum -y install cronie newrelic-php5 && \
+	yum -y install ssmtp cronie newrelic-php5 && \
 	yum clean all && mkdir -p /var/www
 
 
