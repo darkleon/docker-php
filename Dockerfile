@@ -1,13 +1,11 @@
 FROM centos:latest
 MAINTAINER http://www.kt-team.de
 
-
 RUN yum -y update && \
 	rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
 	rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
 	rpm -Uvh https://yum.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm && \
 	yum clean all
-
 
 RUN yum -y install freetds && \
 	yum  --enablerepo=remi-php70 -y install \
@@ -35,6 +33,7 @@ RUN yum -y install freetds && \
 	yum -y install ssmtp cronie newrelic-php5 && \
 	yum clean all && mkdir -p /var/www
 
+RUN groupadd --gid 33 www-data && useradd --uid 33 --gid 33 www-data
 
 WORKDIR /var/www
 
