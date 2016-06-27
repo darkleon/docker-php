@@ -40,5 +40,5 @@ WORKDIR /var/www
 
 EXPOSE 9000
 
-RUN php-fpm
+CMD ["php-fpm"]
 
