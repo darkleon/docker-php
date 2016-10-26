@@ -7,7 +7,7 @@ RUN yum -y update && \
 	rpm -Uvh https://yum.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm && \
 	yum clean all
 
-RUN yum -y install freetds && \
+RUN yum -y install which freetds && \
 	yum  --enablerepo=remi-php70 -y install \
 	php-cli \
 	php-fpm \
@@ -21,14 +21,17 @@ RUN yum -y install freetds && \
 	php-pecl-imagick \
 	php-intl \
 	php-mcrypt \
+	php-mhash \
 	php-mbstring \
 	php-xml \
+	php-xmlrpc \
 	php-json \
 	php-soap \
 	php-mysqlnd \
 	php-pdo-dblib \
 	php-pecl-zip \
 	php-process \
+	php-pear \
 	php-pecl-xdebug && \
 	yum -y install ssmtp cronie newrelic-php5 && \
 	yum clean all && mkdir -p /var/www
